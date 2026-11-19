@@ -12,6 +12,7 @@ import { isMac } from "./core/platform";
 import { loadSettings, saveSetting, type Settings } from "./core/settings";
 import { makeState, resolveTarget, type Target } from "./core/state";
 import { hoursText, systemTz, zoneParts } from "./core/time";
+import { startUpdates } from "./core/updates";
 import { createMenu, type ClockMenu } from "./ui/menu";
 
 // room around the clock for its CSS shadow, in CSS px before scaling
@@ -173,7 +174,7 @@ function mountView() {
 }
 
 function render() {
-  view?.update(makeState(new Date(), target, { hour12: s.hour12, seconds: s.seconds }));
+  view?.update(makeState(new Date(), target, { hour12: s.hour12, seconds: s.seconds, details: s.details }));
 }
 
 // ── changes from the menu and the city picker ───────────────────────────────
@@ -197,6 +198,7 @@ async function change<K extends keyof Settings>(key: K, value: Settings[K]) {
       html.style.setProperty("--scale", String(s.scale));
       await applyEffects();
       break;
+    case "details":
     case "seconds":
     case "hour12":
       render();
@@ -298,10 +300,12 @@ async function boot() {
     menu?.popup().catch(console.error);
   });
 
+  const updates = await startUpdates(() => void menu?.refresh().catch(console.error));
   menu = await createMenu({
     settings: s,
     header,
     visible: () => shown,
+    updates,
     change,
     openPicker: () => void openPicker().catch(console.error),
     toggleVisible,

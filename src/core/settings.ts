@@ -10,6 +10,7 @@ export interface Settings {
   scale: number;
   seconds: boolean;
   hour12: boolean;
+  details: boolean; // the city and date beside the time; off, the clock shows only the time
   clickThrough: boolean;
   pos: { x: number; y: number } | null; // top-left of the clock, in points on macOS and pixels on Windows
 }
@@ -21,6 +22,7 @@ export const DEFAULTS: Settings = {
   scale: 1,
   seconds: false,
   hour12: false,
+  details: false,
   clickThrough: false,
   pos: null,
 };

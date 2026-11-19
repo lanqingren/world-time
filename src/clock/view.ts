@@ -6,6 +6,7 @@ export interface ViewState {
   parts: ZoneParts;
   hour12: boolean;
   seconds: boolean;
+  details: boolean; // show the city and date too, not only the time
   city: string; // 纽约
   weekday: string; // 周三, or 明天 周四
   period: string; // 上午 / 晚上 ...

@@ -43,6 +43,31 @@ body {
   white-space: nowrap;
 }
 
+/* only the time, the default: 显示城市和日期 brings the rest back */
+.time-only .g-meta,
+.time-only .a-label,
+.time-only .f-label,
+.time-only .s-city,
+.time-only .s-sub,
+.time-only .b-line {
+  display: none;
+}
+
+/* 上午 / 下午 in front of a time shown on its own in 12-hour mode */
+.g-ap,
+.s-ap,
+.b-ap {
+  font-family: var(--cjk);
+  font-weight: 500;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+.g-ap:empty,
+.s-ap:empty,
+.b-ap:empty {
+  display: none;
+}
+
 /* ───────── A 玻璃 ───────── */
 
 .glass {
@@ -102,6 +127,8 @@ body {
   opacity: 0.5;
 }
 .g-ss { font-size: 22px; margin-left: 4px; }
+.g-ap { font-size: 17px; margin-right: 6px; }
+.glass.time-only { padding-right: 28px; }
 .g-meta { text-align: right; }
 .g-city {
   display: flex;
@@ -206,6 +233,19 @@ body {
   perspective: 520px;
 }
 .f-card.f-sec { width: 96px; font-size: 60px; }
+.f-ap {
+  position: absolute;
+  z-index: 4;
+  left: 11px;
+  top: 10px;
+  font-family: var(--cjk);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+  opacity: 0.55;
+}
 .f-half,
 .f-leaf {
   position: absolute;
@@ -341,6 +381,9 @@ body {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 .s-ss { font-size: 22px; margin-left: 4px; }
+.s-ap { font-size: 17px; margin-right: 6px; }
+/* the time alone sits in the middle of the card */
+.sky.time-only .s-time { margin-top: 27px; }
 .s-sub { margin-top: 10px; font-size: 13px; opacity: 0.88; }
 
 /* ───────── E 纯文字 ───────── */
@@ -352,6 +395,7 @@ body {
   letter-spacing: -0.045em;
 }
 .b-ss { font-size: 30px; margin-left: 6px; letter-spacing: 0; }
+.b-ap { font-size: 26px; margin-right: 8px; }
 .b-line { margin: 8px 0 0 5px; font-size: 16px; letter-spacing: 0.03em; }
 .b-line b { font-weight: 600; }
 .b-line em { font-style: normal; font-weight: 400; opacity: 0.78; }

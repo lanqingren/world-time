@@ -3,11 +3,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { CheckMenuItem, Menu, MenuItem } from "@tauri-apps/api/menu";
 import { TrayIcon } from "@tauri-apps/api/tray";
 import { SCALES, STYLES, type Appearance, type Settings } from "../core/settings";
+import type { Updates } from "../core/updates";
 
 export interface MenuHost {
   settings: Settings;
   header(): string; // 纽约 21:47
   visible(): boolean;
+  updates: Updates;
   change<K extends keyof Settings>(key: K, value: Settings[K]): Promise<void>;
   openPicker(): void;
   toggleVisible(): Promise<void>;
@@ -37,13 +39,14 @@ export async function createMenu(host: MenuHost): Promise<ClockMenu> {
     const sync = () => Promise.all(items.map((item, i) => item.setChecked(s[key] === options[i].value)));
     return { items, sync };
   }
-  const toggle = (key: "seconds" | "hour12" | "clickThrough", text: string) =>
+  const toggle = (key: "details" | "seconds" | "hour12" | "clickThrough", text: string) =>
     CheckMenuItem.new({ text, checked: s[key], action: () => void host.change(key, !s[key]) });
 
   const header = await MenuItem.new({ text: host.header(), enabled: false });
   const style = await group("style", STYLES.map((x) => ({ value: x.id, name: x.name })));
   const appearance = await group("appearance", APPEARANCES);
   const scale = await group("scale", SCALES);
+  const details = await toggle("details", "显示城市和日期");
   const seconds = await toggle("seconds", "显示秒");
   const hour12 = await toggle("hour12", "12 小时制");
   const through = await toggle("clickThrough", "鼠标穿透（再打开一次本程序可关掉）");
@@ -56,6 +59,7 @@ export async function createMenu(host: MenuHost): Promise<ClockMenu> {
       await autostart.setChecked(await host.autostart.enabled().catch(() => on));
     },
   });
+  const updates = await MenuItem.new({ text: host.updates.label(), action: () => host.updates.run() });
   const visibility = await MenuItem.new({ text: "隐藏时钟", action: () => void host.toggleVisible() });
 
   const menu = await Menu.new({
@@ -67,11 +71,13 @@ export async function createMenu(host: MenuHost): Promise<ClockMenu> {
       { text: "外观", items: appearance.items },
       { text: "大小", items: scale.items },
       { item: "Separator" },
+      details,
       seconds,
       hour12,
       { item: "Separator" },
       through,
       autostart,
+      updates,
       { item: "Separator" },
       visibility,
       { text: "退出", action: () => host.quit() },
@@ -88,9 +94,11 @@ export async function createMenu(host: MenuHost): Promise<ClockMenu> {
         style.sync(),
         appearance.sync(),
         scale.sync(),
+        details.setChecked(s.details),
         seconds.setChecked(s.seconds),
         hour12.setChecked(s.hour12),
         through.setChecked(s.clickThrough),
+        updates.setText(host.updates.label()),
         visibility.setText(host.visible() ? "隐藏时钟" : "显示时钟"),
       ]);
     },

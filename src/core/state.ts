@@ -20,7 +20,7 @@ export function resolveTarget(cityId: string | null): Target {
   return { tz, name: local?.zh ?? "本地", lat: local?.lat ?? 30, lon: local?.lon ?? offset / 4, follow: true };
 }
 
-export function makeState(at: Date, t: Target, opts: { hour12: boolean; seconds: boolean }): ViewState {
+export function makeState(at: Date, t: Target, opts: { hour12: boolean; seconds: boolean; details: boolean }): ViewState {
   const localTz = systemTz();
   const parts = zoneParts(t.tz, at);
   const lp = t.tz === localTz ? parts : zoneParts(localTz, at);
@@ -35,6 +35,7 @@ export function makeState(at: Date, t: Target, opts: { hour12: boolean; seconds:
     parts,
     hour12: opts.hour12,
     seconds: opts.seconds,
+    details: opts.details,
     city: t.name,
     weekday,
     period: periodZh(parts.hour),

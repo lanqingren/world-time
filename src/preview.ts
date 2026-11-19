@@ -11,13 +11,14 @@ const target = (id: string): Target => {
   return { tz: c.tz, name: c.zh, lat: c.lat, lon: c.lon, follow: false };
 };
 
-const cells: { style: StyleId; wall: string; tag: string; items: [string, "light" | "dark", boolean][] }[] = [
-  { style: "glass", wall: "w1", tag: "A 玻璃", items: [["America/New_York", "dark", false], ["Europe/London", "light", true]] },
-  { style: "analog", wall: "w2", tag: "B 指针", items: [["America/New_York", "light", true], ["Europe/London", "dark", true]] },
-  { style: "flip", wall: "w3", tag: "C 翻页", items: [["America/New_York", "dark", false], ["Australia/Sydney", "light", false]] },
-  { style: "sky", wall: "w4", tag: "D 天空", items: [["America/New_York", "light", false], ["Australia/Sydney", "dark", false]] },
-  { style: "bare", wall: "w5", tag: "E 纯文字", items: [["America/New_York", "dark", false]] },
-  { style: "sky", wall: "w4", tag: "D 天空 · 晨昏", items: [["America/Los_Angeles", "light", false], ["Asia/Kolkata", "dark", false]] },
+// each item: city, theme, seconds, city and date shown
+const cells: { style: StyleId; wall: string; tag: string; items: [string, "light" | "dark", boolean, boolean][] }[] = [
+  { style: "glass", wall: "w1", tag: "A 玻璃", items: [["America/New_York", "dark", false, false], ["Europe/London", "light", true, true]] },
+  { style: "analog", wall: "w2", tag: "B 指针", items: [["America/New_York", "light", true, false], ["Europe/London", "dark", true, true]] },
+  { style: "flip", wall: "w3", tag: "C 翻页", items: [["America/New_York", "dark", false, false], ["Australia/Sydney", "light", false, true]] },
+  { style: "sky", wall: "w4", tag: "D 天空", items: [["America/New_York", "light", false, false], ["Australia/Sydney", "dark", false, true]] },
+  { style: "bare", wall: "w5", tag: "E 纯文字", items: [["America/New_York", "dark", false, false]] },
+  { style: "sky", wall: "w4", tag: "D 天空 · 晨昏", items: [["America/Los_Angeles", "light", false, true], ["Asia/Kolkata", "dark", false, true]] },
 ];
 
 const grid = document.getElementById("grid")!;
@@ -25,7 +26,7 @@ for (const c of cells) {
   const cell = document.createElement("div");
   cell.className = `cell ${c.wall}`;
   cell.innerHTML = `<div class="tag">${c.tag}</div>`;
-  for (const [id, theme, seconds] of c.items) {
+  for (const [id, theme, seconds, details] of c.items) {
     const wrap = document.createElement("div");
     wrap.dataset.glass = "emu";
     wrap.dataset.theme = theme;
@@ -33,7 +34,7 @@ for (const c of cells) {
     wrap.appendChild(view.root);
     cell.appendChild(wrap);
     const when = id === "America/Los_Angeles" ? new Date(Date.UTC(2026, 10, 18, 14, 40, 5)) : id === "Asia/Kolkata" ? new Date(Date.UTC(2026, 10, 18, 11, 58, 5)) : at;
-    view.update(makeState(when, target(id), { hour12: false, seconds }));
+    view.update(makeState(when, target(id), { hour12: false, seconds, details }));
     // freeze the analog hands at the sample time
     document.getAnimations().forEach((a) => a.pause());
   }

@@ -56,11 +56,16 @@ export function flipView(): ClockView {
   const s = card();
   s.node.classList.add("f-sec");
   cards.append(h.node, m.node, s.node);
+  // 上午/下午 in the corner of the hour card, as on a real flip clock, when there's no label
+  const ap = el("i", "f-ap");
+  h.node.append(ap);
 
   return {
     root,
     update(st: ViewState) {
       const t = hoursText(st.parts, st.hour12);
+      root.classList.toggle("time-only", !st.details);
+      setText(ap, st.hour12 && !st.details ? t.ampm : "");
       h.set(t.hh);
       m.set(t.mm);
       s.node.hidden = !st.seconds;

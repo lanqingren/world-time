@@ -42,6 +42,7 @@
     "category": "Utility",
     "shortDescription": "悬浮在桌面上的世界时钟",
     "copyright": "© 2026",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -58,6 +59,12 @@
         "languages": ["SimpChinese"],
         "installMode": "currentUser"
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZGMjlDQTYxQ0UzOEIyRTkKUldUcHNqak9ZY29wYjdjdjBRbURaaURGUlhkY2c4aDRUWUlmNjBOY2hpb05INHphcEhUdytpTm4K",
+      "endpoints": ["https://github.com/lanqingren/world-time/releases/latest/download/latest.json"]
     }
   }
 }

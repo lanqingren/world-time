@@ -59,6 +59,7 @@ export function analogView(): ClockView {
     root,
     update(st: ViewState) {
       const p = st.parts;
+      root.classList.toggle("time-only", !st.details);
       const sec = p.second + st.at.getMilliseconds() / 1000;
       const min = p.minute + sec / 60;
       hourHand.style.transform = `rotate(${((p.hour % 12) + min / 60) * 30}deg)`;

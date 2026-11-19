@@ -28,10 +28,11 @@ export function skyView(): ClockView {
   root.insertAdjacentHTML(
     "beforeend",
     `<div class="s-arc"></div><div class="s-hz"></div><div class="s-sun"></div><div class="s-moon"></div>
-     <div class="s-city"></div><div class="s-time num"><span class="s-hm"></span><span class="s-ss"></span></div><div class="s-sub"></div>`,
+     <div class="s-city"></div><div class="s-time num"><span class="s-ap"></span><span class="s-hm"></span><span class="s-ss"></span></div><div class="s-sub"></div>`,
   );
   const sun = root.querySelector<HTMLElement>(".s-sun")!;
   const city = root.querySelector(".s-city")!;
+  const ap = root.querySelector(".s-ap")!;
   const hm = root.querySelector(".s-hm")!;
   const ss = root.querySelector<HTMLElement>(".s-ss")!;
   const sub = root.querySelector(".s-sub")!;
@@ -55,7 +56,9 @@ export function skyView(): ClockView {
         sun.style.top = `${ARC.cy - ARC.r * Math.sin(a) - 14}px`;
       }
       const t = hoursText(s.parts, s.hour12);
+      root.classList.toggle("time-only", !s.details);
       setText(city, s.city);
+      setText(ap, s.hour12 && !s.details ? t.ampm : "");
       setText(hm, `${t.hh}:${t.mm}`);
       ss.hidden = !s.seconds;
       if (s.seconds) setText(ss, t.ss);
