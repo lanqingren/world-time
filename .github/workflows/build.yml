@@ -42,9 +42,14 @@ jobs:
           tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
           releaseName: World Time ${{ github.ref_name }}
           releaseBody: Windows 安装包，下载 `-setup.exe` 双击安装。Mac 版在本地打包。
-          prerelease: true
 
       - uses: actions/upload-artifact@v4
         with:
           name: world-time-windows
           path: src-tauri/target/release/bundle/nsis/*.exe
+
+      # a normal release marked Latest is what the repo's front page shows (pre-releases are left out)
+      - if: ${{ !cancelled() && github.ref_type == 'tag' }}
+        run: gh release edit "${{ github.ref_name }}" --prerelease=false --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
