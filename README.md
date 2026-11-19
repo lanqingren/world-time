@@ -6,7 +6,7 @@
 
 ## 下载
 
-- Windows：到 [Releases](https://github.com/lanqingren/world-time/releases) 下载 `World Time_<版本>_x64-setup.exe`，双击安装。
+- Windows：到 [Releases](https://github.com/lanqingren/world-time/releases) 下载 `World.Time_<版本>_x64-setup.exe`，双击安装。
 - macOS：目前在本地打包，见下面“打包”。
 
 ## 用法
