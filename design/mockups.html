@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>悬浮时钟 · 界面方案</title>
+<style>
+  @font-face { font-family: "Geist"; src: url("fonts/Geist-latin.woff2") format("woff2"); font-weight: 100 900; }
+  :root { --cjk: "PingFang SC", "Microsoft YaHei", sans-serif; --num: "Geist", "PingFang SC", sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1600px; background: #f2f2f4; padding: 52px 52px 56px; color: #1d1d1f; font-family: var(--cjk); -webkit-font-smoothing: antialiased; }
+  h1 { font-weight: 600; font-size: 36px; letter-spacing: .01em; }
+  .lead { margin-top: 10px; font-size: 17px; line-height: 1.6; color: #6e6e73; }
+  .grid { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .panel { position: relative; height: 450px; border-radius: 22px; overflow: hidden; }
+  .tag { position: absolute; left: 24px; top: 20px; z-index: 9; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.35); }
+  .tag b { display: block; font-size: 21px; font-weight: 600; }
+  .tag span { display: block; margin-top: 4px; font-size: 14px; opacity: .88; }
+
+  /* wallpapers */
+  .wall { position: absolute; inset: 0; }
+  .w1 { background: radial-gradient(55% 75% at 12% 18%, #8b5cf6 0%, transparent 62%), radial-gradient(50% 70% at 88% 28%, #fb7185 0%, transparent 60%), radial-gradient(70% 80% at 55% 105%, #14b8a6 0%, transparent 62%), #1e1b4b; }
+  .w2 { background: radial-gradient(60% 80% at 80% 10%, #64748b 0%, transparent 60%), radial-gradient(70% 90% at 10% 100%, #0f766e 0%, transparent 60%), linear-gradient(160deg, #1f2937, #334155); }
+  .w3 { background: radial-gradient(60% 70% at 85% 85%, #f97316 0%, transparent 60%), radial-gradient(60% 80% at 15% 15%, #6366f1 0%, transparent 62%), linear-gradient(200deg, #4c1d95, #9d174d); }
+  .w4 { background: linear-gradient(160deg, #e5e7eb, #cbd5e1 60%, #a5b4c8); }
+  .w5 { background: radial-gradient(60% 80% at 20% 20%, #22c55e 0%, transparent 60%), radial-gradient(60% 80% at 85% 70%, #0ea5e9 0%, transparent 60%), linear-gradient(140deg, #064e3b, #0c4a6e); }
+  .w6 { background: radial-gradient(55% 75% at 85% 15%, #f59e0b 0%, transparent 60%), radial-gradient(60% 80% at 10% 90%, #ec4899 0%, transparent 60%), linear-gradient(160deg, #312e81, #7c3aed); }
+
+  /* a fake app window behind the clock */
+  .app { position: absolute; background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.32); overflow: hidden; }
+  .app .bar { height: 30px; display: flex; gap: 7px; align-items: center; padding-left: 12px; border-bottom: 1px solid #eee; background: #f7f7f8; }
+  .app .bar i { width: 11px; height: 11px; border-radius: 50%; }
+  .app .bar i:nth-child(1) { background: #ff5f57; } .app .bar i:nth-child(2) { background: #febc2e; } .app .bar i:nth-child(3) { background: #28c840; }
+  .app .ln { height: 9px; border-radius: 5px; background: #ececf1; margin: 13px 18px; }
+  .app .ln.h { height: 14px; width: 45%; background: #dcdce3; margin-top: 18px; }
+
+  .num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+  .ico { width: 15px; height: 15px; flex: none; }
+
+  /* A glass */
+  .glass { position: absolute; display: flex; align-items: center; gap: 26px; padding: 16px 24px 16px 26px; border-radius: 24px;
+    -webkit-backdrop-filter: blur(30px) saturate(175%); backdrop-filter: blur(30px) saturate(175%); }
+  .glass.dark { background: rgba(20,20,24,.40); color: #fff; box-shadow: 0 18px 44px rgba(0,0,0,.30), inset 0 0 0 .6px rgba(255,255,255,.24); }
+  .glass.light { background: rgba(255,255,255,.58); color: #1d1d1f; box-shadow: 0 18px 44px rgba(0,0,0,.20), inset 0 0 0 .6px rgba(255,255,255,.75); }
+  .glass .t { font-size: 58px; font-weight: 300; line-height: 1; letter-spacing: -.035em; }
+  .glass .t small { font-size: 22px; font-weight: 400; letter-spacing: 0; opacity: .5; margin-left: 4px; }
+  .glass .m { text-align: right; }
+  .glass .c { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 17px; font-weight: 600; }
+  .glass .s { margin-top: 7px; font-size: 13px; opacity: .62; white-space: nowrap; }
+
+  /* B analog */
+  .dial { position: absolute; filter: drop-shadow(0 16px 26px rgba(0,0,0,.34)); }
+
+  /* C flip */
+  .flip { position: absolute; }
+  .flip .lb { display: flex; align-items: center; gap: 7px; margin: 0 0 11px 4px; font-size: 15px; font-weight: 600; color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.35); }
+  .flip .lb em { font-style: normal; font-weight: 400; opacity: .8; }
+  .cards { display: flex; gap: 10px; }
+  .card { position: relative; width: 122px; height: 138px; border-radius: 16px; text-align: center; font-size: 78px; line-height: 138px; font-weight: 600; letter-spacing: -.02em; }
+  .card::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; }
+  .flip.dark .card { color: #f5f5f7; background: linear-gradient(180deg, #3a3a3f 0%, #2a2a2e 49.5%, #1f1f23 50.5%, #18181b 100%); box-shadow: 0 16px 34px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.10); }
+  .flip.dark .card::after { background: rgba(0,0,0,.6); box-shadow: 0 1px 0 rgba(255,255,255,.07); }
+  .flip.light .card { color: #1d1d1f; background: linear-gradient(180deg, #ffffff 0%, #f4f4f6 49.5%, #e8e8ec 50.5%, #e1e1e6 100%); box-shadow: 0 16px 34px rgba(0,0,0,.30), inset 0 1px 0 #fff; }
+  .flip.light .card::after { background: rgba(0,0,0,.14); box-shadow: 0 1px 0 rgba(255,255,255,.8); }
+
+  /* D sky */
+  .sky { position: absolute; width: 336px; height: 152px; border-radius: 28px; overflow: hidden; color: #fff; padding: 20px 24px; box-shadow: 0 18px 40px rgba(15,23,42,.32); }
+  .sky.day { background: linear-gradient(165deg, #2f80ed 0%, #56a8f5 48%, #a7d6fb 100%); }
+  .sky.night { background: linear-gradient(165deg, #070b1f 0%, #141a44 55%, #2b2766 100%); }
+  .sky .c { position: relative; z-index: 2; font-size: 16px; font-weight: 600; text-shadow: 0 1px 6px rgba(0,0,0,.18); }
+  .sky .t { position: relative; z-index: 2; margin-top: 6px; font-size: 58px; font-weight: 300; line-height: 1; letter-spacing: -.035em; text-shadow: 0 2px 10px rgba(0,0,0,.15); }
+  .sky .s { position: relative; z-index: 2; margin-top: 10px; font-size: 13px; opacity: .85; }
+  .sky .arc { position: absolute; right: 22px; bottom: 28px; width: 116px; height: 58px; border: 1.5px dashed rgba(255,255,255,.45); border-bottom: none; border-radius: 116px 116px 0 0; }
+  .sky .hz { position: absolute; right: 14px; bottom: 28px; width: 132px; height: 1px; background: rgba(255,255,255,.4); }
+  .sky .sun { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff7d6, #ffd166 60%, #ffb020); box-shadow: 0 0 0 7px rgba(255,214,102,.22), 0 0 34px 10px rgba(255,214,102,.45); }
+  .sky .moon { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 38% 35%, #ffffff, #dfe6ff 70%, #c3cdf5); box-shadow: 0 0 26px 6px rgba(200,212,255,.35); }
+  .sky .star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; }
+
+  /* E bare text */
+  .bare { position: absolute; color: #fff; text-shadow: 0 2px 22px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.25); }
+  .bare .t { font-size: 104px; font-weight: 200; line-height: .95; letter-spacing: -.045em; }
+  .bare .c { margin: 8px 0 0 6px; font-size: 18px; font-weight: 500; letter-spacing: .04em; opacity: .95; }
+  .bare .c em { font-style: normal; font-weight: 400; opacity: .75; }
+
+  /* F city picker */
+  .picker { position: absolute; width: 360px; border-radius: 20px; padding: 14px; color: #1d1d1f; background: rgba(255,255,255,.72);
+    -webkit-backdrop-filter: blur(34px) saturate(180%); backdrop-filter: blur(34px) saturate(180%); box-shadow: 0 24px 60px rgba(0,0,0,.32), inset 0 0 0 .6px rgba(255,255,255,.8); }
+  .search { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 12px; background: rgba(118,118,128,.14); font-size: 15px; color: #1d1d1f; }
+  .search .ph { color: #1d1d1f; } .search .cur { width: 1.5px; height: 18px; background: #0a84ff; margin-left: -6px; }
+  .rows { margin-top: 8px; }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 11px; font-size: 15px; }
+  .row .n b { font-weight: 600; } .row .n span { color: #86868b; font-size: 13px; margin-left: 8px; }
+  .row .r { font-size: 16px; color: #3a3a3c; }
+  .row.sel { background: #0a84ff; color: #fff; } .row.sel .n span, .row.sel .r { color: rgba(255,255,255,.85); }
+</style>
+</head>
+<body>
+  <h1>悬浮时钟 · 界面方案</h1>
+  <p class="lead">5 套样式，每套都有深色和浅色。挑 1～2 套，我就照着做进程序里；城市随时可以换，下面最后一格是换城市的样子。</p>
+
+  <div class="grid">
+    <!-- A -->
+    <div class="panel">
+      <div class="wall w1"></div>
+      <div class="app" style="left:250px; top:96px; width:470px; height:300px"><div class="bar"><i></i><i></i><i></i></div><div class="ln h"></div><div class="ln"></div><div class="ln" style="width:80%"></div><div class="ln"></div><div class="ln" style="width:60%"></div><div class="ln"></div><div class="ln" style="width:72%"></div></div>
+      <div class="tag"><b>A　玻璃</b><span>半透明毛玻璃，能透出后面的窗口</span></div>
+      <div class="glass dark" style="left:60px; top:132px">
+        <div class="t num">08:47</div>
+        <div class="m"><div class="c"><svg class="ico" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.4" fill="#FFC145"/><g stroke="#FFC145" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1"/></g></svg>纽约</div><div class="s">周三 · 比北京慢 13 小时</div></div>
+      </div>
+      <div class="glass light" style="left:160px; top:278px">
+        <div class="t num">13:47<small>32</small></div>
+        <div class="m"><div class="c"><svg class="ico" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.4" fill="#F5A300"/><g stroke="#F5A300" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1"/></g></svg>伦敦</div><div class="s">周三 · 比北京慢 8 小时</div></div>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="panel">
+      <div class="wall w2"></div>
+      <div class="app" style="left:330px; top:70px; width:400px; height:330px"><div class="bar"><i></i><i></i><i></i></div><div class="ln h"></div><div class="ln"></div><div class="ln" style="width:80%"></div><div class="ln"></div><div class="ln" style="width:60%"></div><div class="ln"></div><div class="ln" style="width:72%"></div><div class="ln"></div></div>
+      <div class="tag"><b>B　指针</b><span>瑞士车站钟的味道，秒针走得很顺</span></div>
+      <svg class="dial" id="dialLight" style="left:70px; top:120px" width="236" height="236" viewBox="0 0 200 200"></svg>
+      <svg class="dial" id="dialDark" style="left:390px; top:150px" width="236" height="236" viewBox="0 0 200 200"></svg>
+    </div>
+
+    <!-- C -->
+    <div class="panel">
+      <div class="wall w3"></div>
+      <div class="tag"><b>C　翻页</b><span>老式翻页钟，到整分钟会翻一下</span></div>
+      <div class="flip dark" style="left:64px; top:150px">
+        <div class="lb">纽约 <em>周三 · 上午</em></div>
+        <div class="cards"><div class="card num">08</div><div class="card num">47</div></div>
+      </div>
+      <div class="flip light" style="left:380px; top:190px">
+        <div class="lb">悉尼 <em>明天 周四 · 凌晨</em></div>
+        <div class="cards"><div class="card num">00</div><div class="card num">47</div></div>
+      </div>
+    </div>
+
+    <!-- D -->
+    <div class="panel">
+      <div class="wall w4"></div>
+      <div class="tag" style="color:#1d1d1f; text-shadow:none"><b>D　天空</b><span style="opacity:.6">底色跟着那座城市的白天黑夜变</span></div>
+      <div class="sky day" style="left:52px; top:150px">
+        <div class="arc"></div><div class="hz"></div><div class="sun" style="left:197px; top:73px"></div>
+        <div class="c">纽约</div><div class="t num">08:47</div><div class="s">周三 · 比北京慢 13 小时</div>
+      </div>
+      <div class="sky night" id="night" style="left:396px; top:236px">
+        <div class="moon" style="left:268px; top:26px"></div>
+        <div class="c">悉尼</div><div class="t num">00:47</div><div class="s">明天 周四 · 比北京快 3 小时</div>
+      </div>
+    </div>
+
+    <!-- E -->
+    <div class="panel">
+      <div class="wall w5"></div>
+      <div class="tag"><b>E　纯文字</b><span>没有底板，只有字，最不挡东西</span></div>
+      <div class="bare" style="left:72px; top:150px">
+        <div class="t num">08:47</div>
+        <div class="c">纽约 <em>· 周三上午 · 比北京慢 13 小时</em></div>
+      </div>
+    </div>
+
+    <!-- F -->
+    <div class="panel">
+      <div class="wall w6"></div>
+      <div class="tag"><b>换城市</b><span>右键时钟 → 换城市，中文英文都能搜</span></div>
+      <div class="picker" style="left:186px; top:86px">
+        <div class="search"><svg width="15" height="15" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="#8e8e93" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="#8e8e93" stroke-width="1.8" stroke-linecap="round"/></svg><span class="ph">纽</span><span class="cur"></span></div>
+        <div class="rows">
+          <div class="row sel"><div class="n"><b>纽约</b><span>美国</span></div><div class="r num">08:47</div></div>
+          <div class="row"><div class="n"><b>纽瓦克</b><span>美国</span></div><div class="r num">08:47</div></div>
+          <div class="row"><div class="n"><b>纽卡斯尔</b><span>英国</span></div><div class="r num">13:47</div></div>
+          <div class="row"><div class="n"><b>奥克兰</b><span>新西兰</span></div><div class="r num">02:47</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // analog dials: time 08:47:32 (light) and 13:47:32 (dark)
+  function dial(id, h, m, s, dark, city) {
+    const el = document.getElementById(id), ns = "http://www.w3.org/2000/svg";
+    const c = dark
+      ? { face0: "#2c2c30", face1: "#111114", rim: "rgba(255,255,255,.10)", minor: "#55555c", major: "#f2f2f4", hand: "#f2f2f4", sec: "#ff7a3d", txt: "#8e8e93" }
+      : { face0: "#ffffff", face1: "#ebe9e3", rim: "rgba(0,0,0,.10)", minor: "#c3bfb6", major: "#1d1d1f", hand: "#1d1d1f", sec: "#ff4f1f", txt: "#8d877c" };
+    const add = (tag, attrs, parent = el) => { const n = document.createElementNS(ns, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; };
+    const defs = add("defs", {});
+    const g = add("radialGradient", { id: id + "g", cx: "50%", cy: "38%", r: "70%" }, defs);
+    add("stop", { offset: "0", "stop-color": c.face0 }, g); add("stop", { offset: "1", "stop-color": c.face1 }, g);
+    add("circle", { cx: 100, cy: 100, r: 97, fill: "url(#" + id + "g)" });
+    add("circle", { cx: 100, cy: 100, r: 96.5, fill: "none", stroke: c.rim, "stroke-width": 1 });
+    for (let i = 0; i < 60; i++) {
+      const major = i % 5 === 0, a = i * 6 * Math.PI / 180, r1 = 88, r2 = major ? 74 : 84;
+      add("line", { x1: 100 + r1 * Math.sin(a), y1: 100 - r1 * Math.cos(a), x2: 100 + r2 * Math.sin(a), y2: 100 - r2 * Math.cos(a),
+        stroke: major ? c.major : c.minor, "stroke-width": major ? 3.2 : 1.1, "stroke-linecap": major ? "butt" : "round" });
+    }
+    const t = add("text", { x: 100, y: 136, "text-anchor": "middle", fill: c.txt, "font-size": 11, "font-weight": 500, "letter-spacing": "3", "font-family": "PingFang SC, sans-serif" });
+    t.textContent = city;
+    const hand = (deg, len, tail, w, color) => add("line", { x1: 100 - tail * Math.sin(deg * Math.PI / 180), y1: 100 + tail * Math.cos(deg * Math.PI / 180),
+      x2: 100 + len * Math.sin(deg * Math.PI / 180), y2: 100 - len * Math.cos(deg * Math.PI / 180), stroke: color, "stroke-width": w, "stroke-linecap": "round" });
+    hand((h % 12 + m / 60) * 30, 48, 10, 6, c.hand);
+    hand((m + s / 60) * 6, 74, 12, 4, c.hand);
+    hand(s * 6, 82, 20, 1.6, c.sec);
+    add("circle", { cx: 100, cy: 100, r: 4.2, fill: c.sec });
+    add("circle", { cx: 100, cy: 100, r: 1.6, fill: dark ? "#111" : "#fff" });
+  }
+  dial("dialLight", 8, 47, 32, false, "纽 约");
+  dial("dialDark", 13, 47, 32, true, "伦 敦");
+
+  // stars for the night sky
+  const night = document.getElementById("night");
+  [[196,18],[226,46],[244,14],[312,64],[214,92],[250,78],[300,104],[322,20],[236,124],[290,132],[204,60],[318,128],[268,104],[188,116]].forEach(([x, y], i) => {
+    const s = document.createElement("div"); s.className = "star";
+    s.style.left = x + "px"; s.style.top = y + "px"; s.style.opacity = (0.35 + (i % 4) * 0.18).toFixed(2);
+    if (i % 5 === 0) { s.style.width = s.style.height = "3px"; }
+    night.appendChild(s);
+  });
+</script>
+</body>
+</html>

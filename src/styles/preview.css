@@ -1,0 +1,36 @@
+body.preview {
+  box-sizing: border-box;
+  width: 1600px;
+  padding: 40px;
+  background: #f2f2f4;
+  overflow: visible;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.cell {
+  position: relative;
+  height: 330px;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+}
+.cell .tag {
+  position: absolute;
+  left: 20px;
+  top: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+.w1 { background: radial-gradient(55% 75% at 12% 18%, #8b5cf6 0%, transparent 62%), radial-gradient(50% 70% at 88% 28%, #fb7185 0%, transparent 60%), radial-gradient(70% 80% at 55% 105%, #14b8a6 0%, transparent 62%), #1e1b4b; }
+.w2 { background: radial-gradient(60% 80% at 80% 10%, #64748b 0%, transparent 60%), radial-gradient(70% 90% at 10% 100%, #0f766e 0%, transparent 60%), linear-gradient(160deg, #1f2937, #334155); }
+.w3 { background: radial-gradient(60% 70% at 85% 85%, #f97316 0%, transparent 60%), radial-gradient(60% 80% at 15% 15%, #6366f1 0%, transparent 62%), linear-gradient(200deg, #4c1d95, #9d174d); }
+.w4 { background: linear-gradient(160deg, #e5e7eb, #cbd5e1 60%, #a5b4c8); }
+.w5 { background: radial-gradient(60% 80% at 20% 20%, #22c55e 0%, transparent 60%), radial-gradient(60% 80% at 85% 70%, #0ea5e9 0%, transparent 60%), linear-gradient(140deg, #064e3b, #0c4a6e); }

@@ -1,0 +1,359 @@
+@font-face {
+  font-family: "Geist";
+  src: url("../assets/fonts/Geist-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: block;
+}
+
+:root {
+  --cjk: -apple-system, "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --num: "Geist", -apple-system, "Segoe UI", sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--cjk);
+  -webkit-font-smoothing: antialiased;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+/* #stage is measured to size the window; #zoom scales the clock and leaves room for its shadow */
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+}
+#zoom {
+  zoom: var(--scale, 1);
+}
+
+.num {
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+
+.clock {
+  white-space: nowrap;
+}
+
+/* ───────── A 玻璃 ───────── */
+
+.glass {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 16px 24px 16px 26px;
+  border-radius: 22px;
+}
+[data-theme="dark"] .glass { color: #fff; }
+[data-theme="light"] .glass { color: #1d1d1f; }
+
+/* macOS: the window itself is the blurred glass, this only tints it */
+[data-glass="native"][data-theme="dark"] .glass {
+  background: rgba(10, 10, 14, 0.12);
+  box-shadow: inset 0 0 0 0.6px rgba(255, 255, 255, 0.2);
+}
+[data-glass="native"][data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 0.6px rgba(255, 255, 255, 0.6);
+}
+/* Windows: no system blur on a rounded window, so a frosted solid card */
+[data-glass="solid"][data-theme="dark"] .glass {
+  background: rgba(28, 28, 32, 0.84);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32), inset 0 0 0 0.6px rgba(255, 255, 255, 0.16);
+}
+[data-glass="solid"][data-theme="light"] .glass {
+  background: rgba(250, 250, 252, 0.9);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), inset 0 0 0 0.6px rgba(255, 255, 255, 0.9);
+}
+/* previews in a browser: imitate the macOS glass */
+[data-glass="emu"] .glass {
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+  backdrop-filter: blur(30px) saturate(175%);
+}
+[data-glass="emu"][data-theme="dark"] .glass {
+  background: rgba(20, 20, 24, 0.4);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3), inset 0 0 0 0.6px rgba(255, 255, 255, 0.24);
+}
+[data-glass="emu"][data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2), inset 0 0 0 0.6px rgba(255, 255, 255, 0.75);
+}
+
+.g-time {
+  font-size: 58px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.g-ss,
+.s-ss,
+.b-ss {
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0.5;
+}
+.g-ss { font-size: 22px; margin-left: 4px; }
+.g-meta { text-align: right; }
+.g-city {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.g-sub {
+  margin-top: 7px;
+  font-size: 13px;
+  opacity: 0.62;
+}
+.g-icon .ico { display: block; width: 15px; height: 15px; }
+.ico.sun circle { fill: #ffc145; }
+.ico.sun path { stroke: #ffc145; stroke-width: 1.5; stroke-linecap: round; }
+[data-theme="light"] .ico.sun circle { fill: #f5a300; }
+[data-theme="light"] .ico.sun path { stroke: #f5a300; }
+.ico.moon path { fill: #c7d2fe; }
+[data-theme="light"] .ico.moon path { fill: #6b7bd6; }
+
+/* ───────── B 指针 ───────── */
+
+.analog { display: flex; flex-direction: column; align-items: center; }
+.a-face { position: relative; width: 200px; height: 200px; }
+.a-label { margin-top: 14px; }
+.analog svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.32));
+}
+[data-theme="light"] .analog {
+  --face0: #ffffff; --face1: #ebe9e3; --rim: rgba(0, 0, 0, 0.1); --minor: #c3bfb6; --major: #1d1d1f;
+  --hand: #1d1d1f; --sec: #ff4f1f; --pin: #ffffff;
+}
+[data-theme="dark"] .analog {
+  --face0: #2c2c30; --face1: #111114; --rim: rgba(255, 255, 255, 0.1); --minor: #55555c; --major: #f2f2f4;
+  --hand: #f2f2f4; --sec: #ff7a3d; --pin: #111114;
+}
+.analog .s0 { stop-color: var(--face0); }
+.analog .s1 { stop-color: var(--face1); }
+.analog .rim { fill: none; stroke: var(--rim); stroke-width: 1; }
+.analog .tick.major { stroke: var(--major); }
+.analog .tick.minor { stroke: var(--minor); }
+/* hands are HTML so the sweeping second hand runs on the compositor instead of repainting */
+.a-hand {
+  position: absolute;
+  left: calc(100px - var(--w) / 2);
+  top: calc(100px - var(--len));
+  width: var(--w);
+  height: calc(var(--len) + var(--tail));
+  border-radius: var(--w);
+  background: var(--hand);
+  transform-origin: 50% var(--len);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.18);
+}
+.a-h { --w: 6px; --len: 51px; --tail: 13px; }
+.a-m { --w: 4px; --len: 76px; --tail: 14px; }
+.a-s { --w: 1.6px; --len: 83px; --tail: 21px; background: var(--sec); box-shadow: none; }
+.a-cap {
+  position: absolute;
+  left: 95.8px;
+  top: 95.8px;
+  width: 8.4px;
+  height: 8.4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--pin) 0 1.6px, var(--sec) 1.9px);
+}
+
+/* ───────── C 翻页 ───────── */
+
+/* also the label under the 指针 dial */
+.f-label,
+.a-label {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.f-label { margin: 0 0 10px 4px; }
+.f-label em,
+.a-label em { font-style: normal; font-weight: 400; opacity: 0.8; }
+[data-theme="dark"] .f-label,
+[data-theme="dark"] .a-label { color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+[data-theme="light"] .f-label,
+[data-theme="light"] .a-label { color: #1d1d1f; text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 2px rgba(255, 255, 255, 0.9); }
+.f-cards { display: flex; gap: 10px; }
+.f-card {
+  position: relative;
+  width: 122px;
+  height: 138px;
+  border-radius: 16px;
+  font-size: 78px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  perspective: 520px;
+}
+.f-card.f-sec { width: 96px; font-size: 60px; }
+.f-half,
+.f-leaf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+}
+.f-top { top: 0; border-radius: 16px 16px 0 0; transform-origin: 50% 100%; }
+.f-bot { bottom: 0; border-radius: 0 0 16px 16px; transform-origin: 50% 0; }
+.f-half span,
+.f-leaf span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 138px;
+  line-height: 138px;
+  text-align: center;
+}
+.f-top span { top: 0; }
+.f-bot span { bottom: 0; }
+.f-card::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+}
+.f-leaf.f-top {
+  z-index: 2;
+  backface-visibility: hidden;
+  animation: flip-top 0.3s ease-in forwards;
+}
+.f-leaf.f-bot {
+  z-index: 2;
+  transform: rotateX(90deg);
+  animation: flip-bot 0.3s 0.3s ease-out forwards;
+}
+@keyframes flip-top { to { transform: rotateX(-90deg); } }
+@keyframes flip-bot { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+
+[data-theme="dark"] .f-card { color: #f5f5f7; box-shadow: 0 14px 30px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .f-top { background: linear-gradient(180deg, #3a3a3f, #2a2a2e); }
+[data-theme="dark"] .f-bot { background: linear-gradient(180deg, #1f1f23, #18181b); }
+[data-theme="dark"] .f-card::after { background: rgba(0, 0, 0, 0.6); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); }
+[data-theme="light"] .f-card { color: #1d1d1f; box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28), inset 0 1px 0 #fff; }
+[data-theme="light"] .f-top { background: linear-gradient(180deg, #ffffff, #f4f4f6); }
+[data-theme="light"] .f-bot { background: linear-gradient(180deg, #e8e8ec, #e1e1e6); }
+[data-theme="light"] .f-card::after { background: rgba(0, 0, 0, 0.14); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
+
+/* ───────── D 天空 ───────── */
+
+.sky {
+  position: relative;
+  box-sizing: border-box;
+  width: 336px;
+  height: 152px;
+  padding: 20px 24px;
+  border-radius: 28px;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.34);
+}
+.sky-bg { position: absolute; inset: 0; opacity: 0; transition: opacity 3s; }
+.sky-bg.on { opacity: 1; }
+.sky-bg.day { background: linear-gradient(165deg, #2f80ed 0%, #56a8f5 48%, #a7d6fb 100%); }
+.sky-bg.dawn { background: linear-gradient(170deg, #34407a 0%, #8f6ba8 45%, #f39b7f 80%, #ffd3a1 100%); }
+.sky-bg.dusk { background: linear-gradient(170deg, #2b2a5e 0%, #7a3f8f 45%, #e8685a 80%, #f9b16e 100%); }
+.sky-bg.night { background: linear-gradient(165deg, #070b1f 0%, #141a44 55%, #2b2766 100%); }
+.s-stars { position: absolute; inset: 0; opacity: 0; transition: opacity 3s; }
+.sky[data-phase="night"] .s-stars { opacity: 1; }
+.sky[data-phase="dawn"] .s-stars,
+.sky[data-phase="dusk"] .s-stars { opacity: 0.35; }
+.s-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle 4s ease-in-out infinite;
+}
+.s-star.big { width: 3px; height: 3px; }
+@keyframes twinkle { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.3; } }
+.s-arc {
+  position: absolute;
+  right: 22px;
+  bottom: 28px;
+  width: 116px;
+  height: 58px;
+  box-sizing: border-box;
+  border: 1.5px dashed rgba(255, 255, 255, 0.45);
+  border-bottom: none;
+  border-radius: 116px 116px 0 0;
+}
+.s-hz { position: absolute; right: 14px; bottom: 28px; width: 132px; height: 1px; background: rgba(255, 255, 255, 0.4); }
+.sky[data-phase="night"] .s-arc,
+.sky[data-phase="night"] .s-hz { opacity: 0; }
+.s-sun {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #fff7d6, #ffd166 60%, #ffb020);
+  box-shadow: 0 0 0 7px rgba(255, 214, 102, 0.22), 0 0 34px 10px rgba(255, 214, 102, 0.45);
+  transition: left 1s, top 1s, opacity 2s;
+}
+.s-moon {
+  position: absolute;
+  left: 268px;
+  top: 26px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #ffffff, #dfe6ff 70%, #c3cdf5);
+  box-shadow: 0 0 26px 6px rgba(200, 212, 255, 0.35);
+  opacity: 0;
+  transition: opacity 2s;
+}
+.sky[data-phase="night"] .s-moon { opacity: 1; }
+.s-city,
+.s-time,
+.s-sub { position: relative; z-index: 2; }
+.s-city { font-size: 16px; font-weight: 600; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.18); }
+.s-time {
+  margin-top: 6px;
+  font-size: 58px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+.s-ss { font-size: 22px; margin-left: 4px; }
+.s-sub { margin-top: 10px; font-size: 13px; opacity: 0.88; }
+
+/* ───────── E 纯文字 ───────── */
+
+.b-time {
+  font-size: 84px;
+  font-weight: 200;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.b-ss { font-size: 30px; margin-left: 6px; letter-spacing: 0; }
+.b-line { margin: 8px 0 0 5px; font-size: 16px; letter-spacing: 0.03em; }
+.b-line b { font-weight: 600; }
+.b-line em { font-style: normal; font-weight: 400; opacity: 0.78; }
+[data-theme="dark"] .bare { color: #fff; text-shadow: 0 2px 22px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.3); }
+[data-theme="light"] .bare { color: #1d1d1f; text-shadow: 0 1px 16px rgba(255, 255, 255, 0.6), 0 0 2px rgba(255, 255, 255, 0.7); }

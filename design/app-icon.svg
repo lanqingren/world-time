@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#1b2563"/>
+      <stop offset="0.5" stop-color="#5a44a6"/>
+      <stop offset="0.82" stop-color="#d9708a"/>
+      <stop offset="1" stop-color="#f6a47a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="1.02" r="0.62">
+      <stop offset="0" stop-color="#ffd59a" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#ffd59a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9ebf4"/>
+    </linearGradient>
+    <filter id="plateShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <filter id="faceShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22.0" stdDeviation="26.0" flood-color="#120a3a" flood-opacity="0.45"/>
+    </filter>
+    <filter id="handShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4.0" stdDeviation="5.0" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+    <clipPath id="plate"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+  </defs>
+  <g filter="url(#plateShadow)">
+    <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  </g>
+  <g clip-path="url(#plate)">
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#glow)"/>
+    <circle cx="250.0" cy="230.0" r="5" fill="#fff" opacity="0.8"/>
+    <circle cx="330.0" cy="175.0" r="3.5" fill="#fff" opacity="0.8"/>
+    <circle cx="690.0" cy="200.0" r="4" fill="#fff" opacity="0.8"/>
+    <circle cx="770.0" cy="290.0" r="3" fill="#fff" opacity="0.8"/>
+    <circle cx="215.0" cy="380.0" r="3" fill="#fff" opacity="0.8"/>
+    <circle cx="800.0" cy="170.0" r="5.5" fill="#fff" opacity="0.8"/>
+    <circle cx="600.0" cy="150.0" r="3" fill="#fff" opacity="0.8"/>
+  </g>
+  <circle cx="512" cy="512" r="292.5" fill="url(#face)" filter="url(#faceShadow)"/>
+  <circle cx="512" cy="512" r="291.5" fill="none" stroke="#fff" stroke-width="2" opacity="0.9"/>
+  <g>
+    <line x1="512.0" y1="261.6" x2="512.0" y2="311.6" stroke="#2a2a33" stroke-width="15.026712328767122" stroke-linecap="round"/>
+    <line x1="637.2" y1="295.1" x2="623.2" y2="319.4" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="728.9" y1="386.8" x2="704.6" y2="400.8" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="762.4" y1="512.0" x2="712.4" y2="512.0" stroke="#2a2a33" stroke-width="15.026712328767122" stroke-linecap="round"/>
+    <line x1="728.9" y1="637.2" x2="704.6" y2="623.2" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="637.2" y1="728.9" x2="623.2" y2="704.6" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="512.0" y1="762.4" x2="512.0" y2="712.4" stroke="#2a2a33" stroke-width="15.026712328767122" stroke-linecap="round"/>
+    <line x1="386.8" y1="728.9" x2="400.8" y2="704.6" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="295.1" y1="637.2" x2="319.4" y2="623.2" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="261.6" y1="512.0" x2="311.6" y2="512.0" stroke="#2a2a33" stroke-width="15.026712328767122" stroke-linecap="round"/>
+    <line x1="295.1" y1="386.8" x2="319.4" y2="400.8" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+    <line x1="386.8" y1="295.1" x2="400.8" y2="319.4" stroke="#2a2a33" stroke-width="9.016027397260274" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#handShadow)">
+    <line x1="533.6" y1="526.6" x2="387.4" y2="428.0" stroke="#1d1d22" stroke-width="26.046301369863013" stroke-linecap="round"/>
+    <line x1="489.7" y1="532.1" x2="677.3" y2="363.2" stroke="#1d1d22" stroke-width="17.03027397260274" stroke-linecap="round"/>
+    <line x1="535.7" y1="461.2" x2="412.1" y2="726.3" stroke="#ff5a1f" stroke-width="7.012465753424657" stroke-linecap="round"/>
+  </g>
+  <circle cx="512" cy="512" r="19.0" fill="#ff5a1f"/>
+  <circle cx="512" cy="512" r="7.0" fill="#fff"/>
+</svg>
