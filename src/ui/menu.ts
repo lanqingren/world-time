@@ -1,4 +1,5 @@
 // One menu for both the right click on the clock and the menu bar (macOS) / tray (Windows) icon.
+import { invoke } from "@tauri-apps/api/core";
 import { CheckMenuItem, Menu, MenuItem } from "@tauri-apps/api/menu";
 import { TrayIcon } from "@tauri-apps/api/tray";
 import { SCALES, STYLES, type Appearance, type Settings } from "../core/settings";
@@ -79,7 +80,8 @@ export async function createMenu(host: MenuHost): Promise<ClockMenu> {
   await (await TrayIcon.getById("main"))?.setMenu(menu);
 
   return {
-    popup: () => menu.popup(),
+    // not menu.popup(): that keeps a lock until the menu closes and the minute refresh deadlocks on it
+    popup: () => invoke("popup_menu", { rid: menu.rid }),
     async refresh() {
       await Promise.all([
         header.setText(host.header()),

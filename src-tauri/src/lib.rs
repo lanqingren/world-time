@@ -6,6 +6,23 @@ fn quit(app: tauri::AppHandle) {
     app.exit(0);
 }
 
+/// Tauri's own popup command keeps the webview's resource table locked until the menu closes,
+/// so a menu or store call made meanwhile (the clock updates its menu every minute) deadlocks
+/// the app. Take the menu out of the table first and pop it up with the lock released.
+#[tauri::command]
+async fn popup_menu<R: tauri::Runtime>(
+    webview: tauri::Webview<R>,
+    window: tauri::Window<R>,
+    rid: tauri::ResourceId,
+) -> Result<(), String> {
+    use tauri::menu::ContextMenu;
+    let menu = webview
+        .resources_table()
+        .get::<tauri::menu::Menu<R>>(rid)
+        .map_err(|e| e.to_string())?;
+    menu.popup(window).map_err(|e| e.to_string())
+}
+
 /// Keep the clock on every desktop, over full-screen apps, out of Mission Control and Cmd-`.
 #[cfg(target_os = "macos")]
 fn float_on_every_space(window: &tauri::WebviewWindow) {
@@ -40,7 +57,7 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
         ))
-        .invoke_handler(tauri::generate_handler![quit])
+        .invoke_handler(tauri::generate_handler![quit, popup_menu])
         .setup(|app| {
             // no Dock icon: the clock lives in the menu bar
             #[cfg(target_os = "macos")]
